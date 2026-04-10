@@ -1,0 +1,41 @@
+## Project Overview
+
+RetailCRM analytics system with dashboard, Supabase database and Telegram notifications for orders over 3000 ₸.
+
+The system processes orders from RetailCRM, stores them in Supabase, visualizes data in a dashboard and sends real-time Telegram alerts.
+
+## Architecture
+
+RetailCRM API → Make automation → Supabase → Dashboard (CodePen) → Telegram Bot
+
+## Supabase Database
+
+![Supabase](Supabase%20Database.jpg)
+
+## Telegram Notification
+
+![Telegram](Telegram%20Notification.jpg)
+
+## Dashboard
+
+![Dashboard](Dashboard.jpg)
+
+## Claude Code Prompts
+
+- "Build RetailCRM to Supabase integration script"
+- "Fix Make.com filter and iterator for orders array"
+- "Create Telegram bot notification for orders > 3k"
+- "Build dashboard visualization for orders data"
+
+## Problems
+
+- Node.js could not be installed on work PC
+- Issues with Make.com filter and iterator logic
+- Supabase schema mapping required adjustment
+
+## Solution
+
+- Used Make.com for automation instead of local backend
+- Fixed filter using numeric comparison (toNumber)
+- Successfully stored data in Supabase
+- Built dashboard using CodePen instead of Vercel
