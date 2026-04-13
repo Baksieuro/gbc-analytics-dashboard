@@ -106,9 +106,10 @@
   "REL-009": {
     "id": "REL-009",
     "name": "Git: коммиты, PR main←dev, инструкция проверяющему",
-    "status": "in-progress",
+    "status": "completed",
     "dependencies": [
       "REL-008"
-    ]
+    ],
+    "notes": "Push: не выполнен в среде агента (HTTPS, нет credentials /dev/tty). Локально: git push origin dev; git push origin main. PR: gh не установлен; не создавать merge PR dev→main без согласования (main slim). Сравнение веток: https://github.com/Baksieuro/gbc-analytics-dashboard/compare/main...dev и https://github.com/Baksieuro/gbc-analytics-dashboard/compare/dev...main (на GitHub: Compare, выбрать base/head вручную)."
   }
 }
