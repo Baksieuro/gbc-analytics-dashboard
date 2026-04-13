@@ -1,39 +1,48 @@
-# Тестовое задание — AI Tools Specialist
+# GBC Analytics Dashboard
 
-Построй мини-дашборд заказов. Используй Claude Code CLI (или другой AI-инструмент).
+Дашборд заказов: график и сводка по данным из **Supabase**.
 
-## Что нужно сделать
+## Стек
 
-### Шаг 1: Создай аккаунты (всё бесплатно)
+- **Фронтенд:** React 19, Vite 7, TypeScript (`frontend/`)
+- **Данные:** Supabase (Postgres + anon key)
 
-- [RetailCRM](https://www.retailcrm.ru/) — демо-аккаунт
-- [Supabase](https://supabase.com/) — бесплатный проект
-- [Vercel](https://vercel.com/) — бесплатный аккаунт
-- [Telegram Bot](https://t.me/BotFather) — создай бота
+Полный репозиторий (Python backend, тесты, скрипты синхронизации, миграции) — в ветке **`dev`** на GitHub.
 
-### Шаг 2: Загрузи заказы в RetailCRM
+## Локальный запуск (из корня репозитория)
 
-В репо есть `mock_orders.json` — 50 тестовых заказов. Загрузи их в свой RetailCRM через API.
+```bash
+npm install
+npm run dev
+```
 
-### Шаг 3: RetailCRM → Supabase
+Сборка:
 
-Напиши скрипт который забирает заказы из RetailCRM API и кладёт в Supabase.
+```bash
+npm run build
+```
 
-### Шаг 4: Дашборд
+Файл `frontend/vite.config.ts` читает переменные `VITE_*` из **корня** репо (удобно держать один `.env` рядом с бэкендом на `dev`).
 
-Сделай веб-страницу с графиком заказов (данные из Supabase). Задеплой на Vercel.
+## Переменные окружения (фронт)
 
-### Шаг 5: Telegram-бот
+Создайте в корне `.env` (не коммитьте):
 
-Настрой уведомление в Telegram когда в RetailCRM появляется заказ на сумму больше 50,000 ₸.
+| Переменная | Назначение |
+|------------|------------|
+| `VITE_SUPABASE_URL` | URL проекта Supabase |
+| `VITE_SUPABASE_ANON_KEY` | публичный anon key (роль `anon`) |
 
-## Результат
+Другие секреты (RetailCRM, Telegram и т.д.) для этого README не нужны — они используются только в ветке **`dev`** и в Python-скриптах.
 
-- Ссылка на работающий дашборд (Vercel)
-- Ссылка на GitHub-репо с кодом
-- Скриншот уведомления из Telegram
-- В README репо опиши: какие промпты давал Claude Code, где застрял, как решил
+## Деплой на Vercel
 
-## Как сдать
+- **Root Directory:** корень репозитория (там же `package.json` и `vercel.json`).
+- Ветка для продакшена: **`main`**.
+- В панели Vercel задайте те же `VITE_SUPABASE_*` в **Environment Variables** для Production (и при необходимости Preview).
 
-Отправь результат в Telegram: @DmitriyKrasnikov
+В репозитории уже есть `vercel.json` (`installCommand`, `buildCommand`, `outputDirectory`: `frontend/dist`).
+
+## Сдача по ТЗ
+
+Итог проверяющей стороне передаётся по условиям задания (ссылка на деплой, репозиторий, ветка **`dev`** для полного кода).
