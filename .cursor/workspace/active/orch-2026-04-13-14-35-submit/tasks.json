@@ -55,11 +55,15 @@
   },
   "REL-005": {
     "id": "REL-005",
-    "name": "README для main: описание и инструкция",
-    "status": "pending",
+    "name": "README для проверяющего (main краткий, dev + разработка)",
+    "status": "completed",
     "dependencies": [
       "REL-004",
       "REL-006"
+    ],
+    "changedFiles": [
+      "README.md",
+      ".cursor/workspace/active/orch-2026-04-13-14-35-submit/tasks.json"
     ]
   },
   "REL-006": {

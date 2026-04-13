@@ -1,39 +1,87 @@
-# Тестовое задание — AI Tools Specialist
+# GBC Analytics Dashboard
 
-Построй мини-дашборд заказов. Используй Claude Code CLI (или другой AI-инструмент).
+Дашборд заказов: график и сводка по данным из **Supabase**.
 
-## Что нужно сделать
+## Стек
 
-### Шаг 1: Создай аккаунты (всё бесплатно)
+- **Фронтенд:** React 19, Vite 6, TypeScript (`frontend/`)
+- **Данные:** Supabase (Postgres + anon key)
+- **Интеграции (эта ветка):** Python-скрипты RetailCRM → Supabase, Telegram-уведомления
 
-- [RetailCRM](https://www.retailcrm.ru/) — демо-аккаунт
-- [Supabase](https://supabase.com/) — бесплатный проект
-- [Vercel](https://vercel.com/) — бесплатный аккаунт
-- [Telegram Bot](https://t.me/BotFather) — создай бота
+Ветка **`main`** — минимальное дерево под деплой на Vercel. Ветка **`dev`** (текущая) — полный код: backend, тесты, миграции, вспомогательные материалы.
 
-### Шаг 2: Загрузи заказы в RetailCRM
+## Локальный запуск (из корня репозитория)
 
-В репо есть `mock_orders.json` — 50 тестовых заказов. Загрузи их в свой RetailCRM через API.
+```bash
+npm install
+npm run dev
+```
 
-### Шаг 3: RetailCRM → Supabase
+Сборка:
 
-Напиши скрипт который забирает заказы из RetailCRM API и кладёт в Supabase.
+```bash
+npm run build
+```
 
-### Шаг 4: Дашборд
+`frontend/vite.config.ts` читает `VITE_*` из **корня** репозитория (один `.env` для фронта и Python).
 
-Сделай веб-страницу с графиком заказов (данные из Supabase). Задеплой на Vercel.
+## Переменные окружения (фронт)
 
-### Шаг 5: Telegram-бот
+В корне создайте `.env` (не коммитьте). Шаблон переменных см. в `.env.example`.
 
-Настрой уведомление в Telegram когда в RetailCRM появляется заказ на сумму больше 50,000 ₸.
+| Переменная | Назначение |
+|------------|------------|
+| `VITE_SUPABASE_URL` | URL проекта Supabase |
+| `VITE_SUPABASE_ANON_KEY` | публичный anon key |
 
-## Результат
+Секреты RetailCRM, Telegram и сервисного ключа Supabase для синхронизации описаны в `.env.example` и используются только в Python-скриптах.
 
-- Ссылка на работающий дашборд (Vercel)
-- Ссылка на GitHub-репо с кодом
-- Скриншот уведомления из Telegram
-- В README репо опиши: какие промпты давал Claude Code, где застрял, как решил
+## Деплой на Vercel
 
-## Как сдать
+Продакшен собирается с ветки **`main`**: корень репо, `vercel.json`, переменные `VITE_SUPABASE_*` в настройках проекта Vercel.
 
-Отправь результат в Telegram: @DmitriyKrasnikov
+## Сдача по ТЗ
+
+Итог проверяющей стороне передаётся по условиям задания (деплой, ссылка на репозиторий; полный код и документы разработки — в **`dev`**).
+
+---
+
+## Разработка
+
+### Python и зависимости
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+Дополнительно (pytest и прочее из dev-зависимостей):
+
+```bash
+pip install -r backend/requirements-dev.txt
+```
+
+### Тесты
+
+Из **корня** репозитория:
+
+```bash
+pytest
+```
+
+Тесты лежат в каталоге `tests/` (`test_alert_env.py`, `test_sync_orders_row.py`, `test_telegram_watch_threshold.py`).
+
+### Тестовые данные
+
+Файл **`mock_orders.json`** в корне репозитория — набор тестовых заказов для загрузки в RetailCRM (скрипт `backend/upload_mock_orders.py`).
+
+### Каталог `backend/`
+
+Скрипты и модули синхронизации и проверки: например `sync_orders_to_supabase.py`, `telegram_watch_orders.py`, `upload_mock_orders.py`, `check_config.py`, `alert_env.py`, `create_test_order_for_telegram.py`. Зависимости — `backend/requirements.txt` и `backend/requirements-dev.txt`.
+
+### Supabase
+
+SQL-миграции — в **`supabase/migrations/`** (схема таблицы заказов и индексы).
+
+### Только на ветке `dev`
+
+Каталог **`.cursor/`** (правила и сценарии агентов) и **`ai_docs/`** (планы и отчёты) не входят в минимальную ветку `main` и нужны для локальной разработки с инструментами Cursor.
