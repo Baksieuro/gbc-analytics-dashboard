@@ -4,7 +4,7 @@
 
 ## Стек
 
-- **Фронтенд:** React 19, Vite 7, TypeScript (`frontend/`)
+- **Фронтенд:** React 19, Vite 6, TypeScript (`frontend/`)
 - **Данные:** Supabase (Postgres + anon key)
 
 Полный репозиторий (Python backend, тесты, скрипты синхронизации, миграции) — в ветке **`dev`** на GitHub.
