@@ -1418,5 +1418,57 @@
     "customFields": {
       "utm_source": "referral"
     }
+  },
+  {
+    "firstName": "Салтанат",
+    "lastName": "ТелеграмТест51",
+    "phone": "+77091234551",
+    "email": "soltanat.tg51@example.com",
+    "orderType": "eshop-individual",
+    "orderMethod": "shopping-cart",
+    "status": "new",
+    "currency": "KZT",
+    "items": [
+      {
+        "productName": "Тестовый заказ 51 (ниже порога 50 000 ₸)",
+        "quantity": 1,
+        "initialPrice": 40000
+      }
+    ],
+    "delivery": {
+      "address": {
+        "city": "Алматы",
+        "text": "ул. Тестовая 51"
+      }
+    },
+    "customFields": {
+      "utm_source": "threshold-test-below"
+    }
+  },
+  {
+    "firstName": "Айдар",
+    "lastName": "ТелеграмТест52",
+    "phone": "+77091234552",
+    "email": "aidar.tg52@example.com",
+    "orderType": "eshop-individual",
+    "orderMethod": "shopping-cart",
+    "status": "new",
+    "currency": "KZT",
+    "items": [
+      {
+        "productName": "Тестовый заказ 52 (выше порога 50 000 ₸ — уведомление в Telegram)",
+        "quantity": 1,
+        "initialPrice": 60000
+      }
+    ],
+    "delivery": {
+      "address": {
+        "city": "Алматы",
+        "text": "ул. Тестовая 52"
+      }
+    },
+    "customFields": {
+      "utm_source": "threshold-test-above"
+    }
   }
 ]

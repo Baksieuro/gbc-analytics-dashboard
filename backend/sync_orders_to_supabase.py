@@ -32,6 +32,7 @@ DOTENV_PATH = REPO_ROOT / ".env"
 
 _SUPABASE_URL_KEYS = ("SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "VITE_SUPABASE_URL")
 _SERVICE_ROLE_KEYS = ("SUPABASE_SERVICE_ROLE_KEY",)
+_SYNC_CURRENCY_KEYS = ("SYNC_CURRENCY_CODE",)
 
 CRM_PAGE_LIMIT = 50
 UPSERT_BATCH_SIZE = 200
@@ -83,6 +84,14 @@ def _crm_currency_code(order: Mapping[str, Any]) -> str:
     return s or "KZT"
 
 
+def _sync_currency_override() -> str | None:
+    raw = _first_env(_SYNC_CURRENCY_KEYS)
+    if not raw:
+        return None
+    s = raw.strip().upper()
+    return s[:16] if s else None
+
+
 def _crm_order_total(order: Mapping[str, Any]) -> Decimal:
     for key in ("totalSumm", "summ", "totalSum", "totalPrice"):
         raw = order.get(key)
@@ -119,7 +128,8 @@ def retailcrm_order_to_row(order: Mapping[str, Any], *, include_raw: bool) -> di
         return None
 
     total = _crm_order_total(order)
-    currency = _crm_currency_code(order)
+    override = _sync_currency_override()
+    currency = override if override else _crm_currency_code(order)
     ordered_at = _parse_ordered_at(order)
     row: dict[str, Any] = {
         "retailcrm_id": retailcrm_id,

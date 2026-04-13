@@ -435,15 +435,16 @@ def resolve_order_catalog_for_upsert(
     return r_type, r_method, omit_method_fallback
 
 
-def load_mock_orders(limit: int) -> list[dict[str, Any]]:
+def load_mock_orders(limit: int | None) -> list[dict[str, Any]]:
     if not MOCK_PATH.is_file():
         raise FileNotFoundError(str(MOCK_PATH))
     with MOCK_PATH.open(encoding="utf-8") as f:
         data = json.load(f)
     if not isinstance(data, list):
         raise ValueError("mock_orders.json must be a JSON array")
+    slice_rows = data if limit is None else data[: max(0, limit)]
     out: list[dict[str, Any]] = []
-    for row in data[:limit]:
+    for row in slice_rows:
         if isinstance(row, dict):
             out.append(row)
     return out
@@ -456,8 +457,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--limit",
         type=int,
-        default=50,
-        help="Сколько заказов взять с начала файла (по умолчанию 50)",
+        default=None,
+        help="Максимум заказов с начала файла (по умолчанию — все записи в mock_orders.json)",
     )
     parser.add_argument(
         "--dry-run",

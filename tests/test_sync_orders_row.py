@@ -17,6 +17,7 @@ if _backend not in sys.path:
 from sync_orders_to_supabase import (  # noqa: E402
     _crm_currency_code,
     _crm_order_total,
+    _sync_currency_override,
     retailcrm_order_to_row,
 )
 
@@ -75,6 +76,23 @@ def test_retailcrm_order_to_row_happy_path_no_raw() -> None:
     assert row["currency"] == "KZT"
     assert row["ordered_at"] == "2024-06-01T12:30:45+00:00"
     assert "raw_payload" not in row
+
+
+def test_retailcrm_order_to_row_sync_currency_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SYNC_CURRENCY_CODE", "KZT")
+    try:
+        assert _sync_currency_override() == "KZT"
+        order = {
+            "id": 1,
+            "summ": "100",
+            "currency": {"code": "RUB"},
+            "createdAt": "2024-01-01T00:00:00+00:00",
+        }
+        row = retailcrm_order_to_row(order, include_raw=False)
+        assert row is not None
+        assert row["currency"] == "KZT"
+    finally:
+        monkeypatch.delenv("SYNC_CURRENCY_CODE", raising=False)
 
 
 def test_retailcrm_order_to_row_string_id_and_include_raw() -> None:
