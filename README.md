@@ -72,7 +72,19 @@ pytest
 
 ### Тестовые данные
 
-Файл **`mock_orders.json`** в корне репозитория — набор тестовых заказов для загрузки в RetailCRM (скрипт `backend/upload_mock_orders.py`).
+Файл **`mock_orders.json`** — **52** заказа: первые 50 — демо-набор; **51-й** (сумма 40 000 ₸) и **52-й** (60 000 ₸) — для проверки порога `ALERT_MIN_AMOUNT_KZT` (по умолчанию 50 000): уведомление в Telegram должно уйти только на заказ **52** (сумма **строго больше** порога).
+
+Загрузка в RetailCRM из корня репозитория (по умолчанию поднимаются **все** записи из файла):
+
+```bash
+python backend/upload_mock_orders.py
+```
+
+Дальше синхронизация в Supabase (в `.env` для корректных сумм в ₸ задайте `SYNC_CURRENCY_CODE=KZT`, если CRM отдаёт валюту как RUB):
+
+```bash
+python backend/sync_orders_to_supabase.py
+```
 
 ### Каталог `backend/`
 
