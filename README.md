@@ -86,6 +86,20 @@ python backend/upload_mock_orders.py
 python backend/sync_orders_to_supabase.py
 ```
 
+### Быстрый демо-сценарий Telegram -> CRM -> Supabase -> Dashboard
+
+Одной командой создайте тестовый заказ в RetailCRM и запустите полный пайплайн (синк + Telegram watcher):
+
+```bash
+python backend/create_test_order_for_telegram.py --pipeline
+```
+
+Ожидаемый результат:
+- новый заказ появляется в RetailCRM;
+- запись попадает в `public.orders` в Supabase;
+- на дашборде Vercel обновляются сумма и количество заказов;
+- если сумма > `ALERT_MIN_AMOUNT_KZT`, приходит уведомление в Telegram.
+
 ### Каталог `backend/`
 
 Скрипты и модули синхронизации и проверки: например `sync_orders_to_supabase.py`, `telegram_watch_orders.py`, `upload_mock_orders.py`, `check_config.py`, `alert_env.py`, `create_test_order_for_telegram.py`. Зависимости — `backend/requirements.txt` и `backend/requirements-dev.txt`.
@@ -93,7 +107,3 @@ python backend/sync_orders_to_supabase.py
 ### Supabase
 
 SQL-миграции — в **`supabase/migrations/`** (схема таблицы заказов и индексы).
-
-### Только на ветке `dev`
-
-Каталог **`.cursor/`** (правила и сценарии агентов) и **`ai_docs/`** (планы и отчёты) не входят в минимальную ветку `main` и нужны для локальной разработки с инструментами Cursor.
