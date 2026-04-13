@@ -18,6 +18,7 @@ from sync_orders_to_supabase import (  # noqa: E402
     _crm_currency_code,
     _crm_order_total,
     _sync_currency_override,
+    _sync_keep_last_n,
     retailcrm_order_to_row,
 )
 
@@ -93,6 +94,22 @@ def test_retailcrm_order_to_row_sync_currency_override(monkeypatch: pytest.Monke
         assert row["currency"] == "KZT"
     finally:
         monkeypatch.delenv("SYNC_CURRENCY_CODE", raising=False)
+
+
+def test_sync_keep_last_n_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SYNC_KEEP_LAST_N", "52")
+    try:
+        assert _sync_keep_last_n() == 52
+    finally:
+        monkeypatch.delenv("SYNC_KEEP_LAST_N", raising=False)
+
+
+def test_sync_keep_last_n_invalid(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SYNC_KEEP_LAST_N", "0")
+    try:
+        assert _sync_keep_last_n() is None
+    finally:
+        monkeypatch.delenv("SYNC_KEEP_LAST_N", raising=False)
 
 
 def test_retailcrm_order_to_row_string_id_and_include_raw() -> None:

@@ -33,6 +33,7 @@ DOTENV_PATH = REPO_ROOT / ".env"
 _SUPABASE_URL_KEYS = ("SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "VITE_SUPABASE_URL")
 _SERVICE_ROLE_KEYS = ("SUPABASE_SERVICE_ROLE_KEY",)
 _SYNC_CURRENCY_KEYS = ("SYNC_CURRENCY_CODE",)
+_SYNC_KEEP_LAST_N_KEYS = ("SYNC_KEEP_LAST_N",)
 
 CRM_PAGE_LIMIT = 50
 UPSERT_BATCH_SIZE = 200
@@ -90,6 +91,18 @@ def _sync_currency_override() -> str | None:
         return None
     s = raw.strip().upper()
     return s[:16] if s else None
+
+
+def _sync_keep_last_n() -> int | None:
+    raw = _first_env(_SYNC_KEEP_LAST_N_KEYS)
+    if not raw:
+        return None
+    try:
+        n = int(raw)
+    except (TypeError, ValueError):
+        logger.warning("invalid SYNC_KEEP_LAST_N=%r (ignored)", raw)
+        return None
+    return n if n > 0 else None
 
 
 def _crm_order_total(order: Mapping[str, Any]) -> Decimal:
@@ -196,6 +209,44 @@ def upsert_orders_batch(
             continue
         raise RuntimeError(f"Supabase HTTP {code}: {resp_text[:500]}")
     raise RuntimeError(f"Supabase upsert failed after {MAX_RETRIES}") from last_err
+
+
+def delete_orders_not_in_ids(
+    supabase_url: str,
+    service_key: str,
+    keep_ids: list[int],
+) -> int:
+    if not keep_ids:
+        return 0
+    ids = sorted(set(keep_ids))
+    ids_csv = ",".join(str(i) for i in ids)
+    base = _supabase_rest_base(supabase_url)
+    target = f"{base}/orders?retailcrm_id=not.in.({ids_csv})"
+    req = urllib.request.Request(
+        target,
+        method="DELETE",
+        headers={
+            "apikey": service_key,
+            "Authorization": f"Bearer {service_key}",
+            "Prefer": "return=representation",
+        },
+    )
+    opener = urllib.request.build_opener()
+    try:
+        with opener.open(req, timeout=120) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+            if not body.strip():
+                return 0
+            try:
+                data = json.loads(body)
+            except json.JSONDecodeError:
+                return 0
+            if isinstance(data, list):
+                return len(data)
+            return 0
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace") if e.fp else ""
+        raise RuntimeError(f"Supabase DELETE HTTP {e.code}: {body[:500]}") from e
 
 
 def fetch_all_orders(client: RetailCrmApiClient, site: str, *, max_pages: int | None) -> list[dict[str, Any]]:
@@ -327,6 +378,11 @@ def main(argv: list[str] | None = None) -> int:
         if row:
             rows.append(row)
 
+    keep_last_n = _sync_keep_last_n()
+    if keep_last_n and len(rows) > keep_last_n:
+        rows = sorted(rows, key=lambda r: int(r["retailcrm_id"]))[-keep_last_n:]
+        logger.info("SYNC_KEEP_LAST_N=%s applied, rows limited to %s", keep_last_n, len(rows))
+
     logger.info("rows to upsert: %s", len(rows))
     if not crm_orders:
         logger.warning("no CRM orders site=%s (try upload_mock_orders.py)", site)
@@ -344,6 +400,10 @@ def main(argv: list[str] | None = None) -> int:
             logger.info("upsert batch %s", len(batch))
             if REQUEST_PAUSE_AFTER_SUPABASE_SEC > 0:
                 time.sleep(REQUEST_PAUSE_AFTER_SUPABASE_SEC)
+        if keep_last_n:
+            keep_ids = [int(r["retailcrm_id"]) for r in rows]
+            deleted = delete_orders_not_in_ids(supabase_url, service_key, keep_ids)
+            logger.info("prune orders outside keep-set: deleted=%s", deleted)
     except Exception as e:
         logger.error("Supabase write: %s", e)
         return 1
