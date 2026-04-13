@@ -27,6 +27,19 @@ export type OrderKpis = {
   currency: string;
 };
 
+/** Код валюты для подписей: VITE_DISPLAY_CURRENCY, иначе данные; при доминирующем RUB — KZT (типичный кейс RetailCRM + суммы в ₸). */
+export function effectiveDisplayCurrencyCode(rows: OrderRow[]): string {
+  const raw = (import.meta.env.VITE_DISPLAY_CURRENCY ?? "").trim().toUpperCase();
+  if (raw.length >= 2 && raw.length <= 4 && /^[A-Z]+$/.test(raw)) {
+    return raw;
+  }
+  const dom = dominantCurrency(rows);
+  if (dom === "RUB") {
+    return "KZT";
+  }
+  return dom;
+}
+
 function dominantCurrency(rows: OrderRow[]): string {
   const counts = new Map<string, number>();
   for (const r of rows) {
@@ -67,7 +80,10 @@ export function isDenseSameDayCluster(rows: OrderRow[]): boolean {
   return maxCount / rows.length >= 0.45;
 }
 
-export function preparePerOrderBars(rows: OrderRow[]): PerOrderBarPoint[] {
+export function preparePerOrderBars(
+  rows: OrderRow[],
+  displayCurrencyCode?: string,
+): PerOrderBarPoint[] {
   const sorted = [...rows].sort((a, b) => {
     const ta = new Date(a.ordered_at).getTime();
     const tb = new Date(b.ordered_at).getTime();
@@ -76,11 +92,17 @@ export function preparePerOrderBars(rows: OrderRow[]): PerOrderBarPoint[] {
     }
     return a.retailcrm_id - b.retailcrm_id;
   });
+  const cur =
+    (displayCurrencyCode ?? "").trim().toUpperCase() ||
+    null;
   return sorted.map((row, i) => ({
     seq: i + 1,
     shortLabel: String(i + 1),
     retailcrm_id: row.retailcrm_id,
-    currency: (row.currency ?? "").trim().toUpperCase() || "KZT",
+    currency:
+      cur && /^[A-Z]{2,4}$/.test(cur)
+        ? cur
+        : (row.currency ?? "").trim().toUpperCase() || "KZT",
     amount: toNumber(row.total_amount),
     ordered_at: row.ordered_at,
     dayUtc: dayKeyUtc(row.ordered_at),
@@ -145,7 +167,7 @@ export function computeOrderKpis(rows: OrderRow[]): OrderKpis | null {
     avg: sum / amounts.length,
     min: Math.min(...amounts),
     max: Math.max(...amounts),
-    currency: dominantCurrency(rows),
+    currency: effectiveDisplayCurrencyCode(rows),
   };
 }
 

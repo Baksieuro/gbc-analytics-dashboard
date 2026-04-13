@@ -30,9 +30,12 @@ export default function App() {
 
   const daily = useMemo(() => aggregateOrdersByDay(rows), [rows]);
   const denseSameDay = useMemo(() => isDenseSameDayCluster(rows), [rows]);
-  const perOrder = useMemo(() => preparePerOrderBars(rows), [rows]);
-  const histogram = useMemo(() => amountHistogram(rows, 12), [rows]);
   const kpis = useMemo(() => computeOrderKpis(rows), [rows]);
+  const perOrder = useMemo(
+    () => preparePerOrderBars(rows, kpis?.currency),
+    [rows, kpis?.currency],
+  );
+  const histogram = useMemo(() => amountHistogram(rows, 12), [rows]);
   const showDaily = useMemo(() => shouldShowDailyTrend(daily), [daily]);
   const amountUnit = useMemo(
     () => currencySymbol(kpis?.currency ?? "KZT"),
