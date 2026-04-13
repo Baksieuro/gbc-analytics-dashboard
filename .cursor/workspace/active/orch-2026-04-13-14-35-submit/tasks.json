@@ -1,0 +1,104 @@
+{
+  "REL-001": {
+    "id": "REL-001",
+    "name": ".gitignore и политика артефактов/веток main vs dev",
+    "status": "completed",
+    "dependencies": [],
+    "changedFiles": [
+      ".gitignore",
+      ".cursor/workspace/active/orch-2026-04-13-14-35-submit/tasks.json"
+    ]
+  },
+  "REL-002": {
+    "id": "REL-002",
+    "name": "Удаление лишних файлов из репозитория и индекса",
+    "status": "completed",
+    "dependencies": [
+      "REL-001"
+    ],
+    "changedFiles": [
+      ".cursor/workspace/active/orch-2026-04-13-14-35-submit/tasks.json",
+      "frontend/dist",
+      "frontend/node_modules/.tmp",
+      ".pytest_cache",
+      "backend/__pycache__",
+      "tests/__pycache__"
+    ]
+  },
+  "REL-003": {
+    "id": "REL-003",
+    "name": "Frontend: убрать dev-комментарии и пояснения",
+    "status": "completed",
+    "dependencies": [
+      "REL-001"
+    ],
+    "changedFiles": [
+      "frontend/src/App.tsx",
+      ".cursor/workspace/active/orch-2026-04-13-14-35-submit/tasks.json"
+    ]
+  },
+  "REL-004": {
+    "id": "REL-004",
+    "name": "Размещение package/requirements и настройка Vercel",
+    "status": "completed",
+    "dependencies": [
+      "REL-001"
+    ],
+    "changedFiles": [
+      "backend/requirements.txt",
+      "backend/requirements-dev.txt",
+      "vercel.json",
+      "requirements.txt",
+      "requirements-dev.txt",
+      ".cursor/workspace/active/orch-2026-04-13-14-35-submit/tasks.json"
+    ]
+  },
+  "REL-005": {
+    "id": "REL-005",
+    "name": "README для main: описание и инструкция",
+    "status": "pending",
+    "dependencies": [
+      "REL-004",
+      "REL-006"
+    ]
+  },
+  "REL-006": {
+    "id": "REL-006",
+    "name": "Разделение содержимого веток main и dev",
+    "status": "completed",
+    "dependencies": [
+      "REL-001"
+    ],
+    "changedFiles": [
+      ".gitignore",
+      ".cursor/workspace/active/orch-2026-04-13-14-35-submit/tasks.json"
+    ]
+  },
+  "REL-007": {
+    "id": "REL-007",
+    "name": "Senior-reviewer: архитектура и чистота релевантного кода",
+    "status": "pending",
+    "dependencies": [
+      "REL-003",
+      "REL-004",
+      "REL-006"
+    ]
+  },
+  "REL-008": {
+    "id": "REL-008",
+    "name": "Регрессия: pytest и npm run build",
+    "status": "pending",
+    "dependencies": [
+      "REL-002",
+      "REL-007"
+    ]
+  },
+  "REL-009": {
+    "id": "REL-009",
+    "name": "Git: коммиты, PR main←dev, инструкция проверяющему",
+    "status": "pending",
+    "dependencies": [
+      "REL-008"
+    ]
+  }
+}

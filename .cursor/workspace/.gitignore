@@ -1,0 +1,10 @@
+﻿# Ignore workspace temp (track only pinned orch tasks file)
+active/*
+!active/orch-2026-04-13-14-35-submit/
+!active/orch-2026-04-13-14-35-submit/tasks.json
+completed/
+failed/
+
+# Keep this README
+!README.md
+!.gitignore
